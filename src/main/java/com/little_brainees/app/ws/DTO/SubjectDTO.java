@@ -51,4 +51,9 @@ public class SubjectDTO extends BaseDTO implements Serializable {
 	public void setSubjectName(String subjectName) {
 		this.subjectName = subjectName;
 	}
+	
+	@Override
+	public String toString() {
+		return "Subject [SubjectCode : "+this.subjectCode+",SubjectName : "+ this.subjectName+"]";
+	}
 }

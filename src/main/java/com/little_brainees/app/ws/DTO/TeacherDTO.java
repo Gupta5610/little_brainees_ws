@@ -72,14 +72,9 @@ public class TeacherDTO extends BaseDTO implements Serializable{
 	public void setTeacherClass(String teacherClass) {
 		this.teacherClass = teacherClass;
 	}	
-	
-	
-	public String toJSON() {
-		String returnValue = "{"
-				+ "\"teacherName\" :\""+  this.teacherName  +"\""
-				+ "}";
 		
-		return returnValue;
-		
+	@Override
+	public String toString() {
+		return "Teacher [TeacherID : "+this.teacherID+",TeacherName : "+this.teacherName+"]";
 	}
 }

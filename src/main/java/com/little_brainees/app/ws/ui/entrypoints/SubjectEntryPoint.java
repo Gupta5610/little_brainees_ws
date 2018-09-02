@@ -31,7 +31,7 @@ public class SubjectEntryPoint {
     @Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
     public Response createSubject(CreateSubjectRequest requestObject) {
-		SubjectDTO requestDTO = ModelMapperUtil.shared.getMapper().map(requestObject, SubjectDTO.class);
+		SubjectDTO requestDTO = (SubjectDTO)ModelMapperUtil.map(requestObject, SubjectDTO.class);
 		SubjectDTO responseDTO ;
 		try {
 			responseDTO = this.service.createSubject(requestDTO);

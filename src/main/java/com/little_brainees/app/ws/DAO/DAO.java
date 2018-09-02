@@ -16,5 +16,11 @@ public interface DAO {
 	// =============================================================================================
 	public SubjectDTO getSubjectBySubjectCode(String subjectCode);
 	public SubjectDTO saveSubject(SubjectDTO subjectDTO);
+	// =============================================================================================
+	public ModuleDTO getModuleByModuleCode(String moduleCode);
+	public ModuleDTO saveModule(ModuleDTO moduleDTO);
+	// =============================================================================================
+	public TopicDTO getTopicByTopicCode(String topicCode);
+	public TopicDTO saveTopic(TopicDTO topicDTO);
 
 }

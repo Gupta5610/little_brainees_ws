@@ -37,7 +37,7 @@ public class ClassEntryPoint {
     @Produces(MediaType.APPLICATION_JSON)
 	public Response createClass(CreateClassRequest requestObject) {
     	
-	    ClassDTO classDTO = ModelMapperUtil.shared.getMapper().map(requestObject, ClassDTO.class);
+	    ClassDTO classDTO = (ClassDTO)ModelMapperUtil.map(requestObject, ClassDTO.class);
 	    ClassDTO createdDTO;
 	    try {
 	    	createdDTO = this.service.createClass(classDTO);

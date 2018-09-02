@@ -44,4 +44,9 @@ public class ClassEntity implements Serializable{
 	public void addSubjectEntity(SubjectEntity subjectEntity) {
 		this.subjects.add(subjectEntity);
 	}
+	
+	@Override
+	public String toString() {
+		return "Class [ ClassCode :"+ this.classCode+", ClassName : "+this.className+"]";
+	}
 }

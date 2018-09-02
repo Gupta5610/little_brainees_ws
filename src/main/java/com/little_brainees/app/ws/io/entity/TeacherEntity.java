@@ -71,5 +71,8 @@ public class TeacherEntity implements Serializable {
 	public void setTeacherClass(String teacherClass) {
 		this.teacherClass = teacherClass;
 	}
-	
+	@Override
+	public String toString() {
+		return "Teacher [TeacherID : "+this.teacherID+",TeacherName : "+this.teacherName+"]";
+	}
 }

@@ -11,7 +11,7 @@ import com.little_brainees.app.ws.exceptions.MissingRequiredFieldException;
  */
 public interface TeacherService {
 
-	TeacherDTO CreateTeacher(TeacherDTO teacherDTO) throws MissingRequiredFieldException;
+	TeacherDTO CreateTeacher(TeacherDTO teacherDTO);
 	TeacherDTO getTeacherByEmail(String email);
 	TeacherDTO randomteacher();
 }

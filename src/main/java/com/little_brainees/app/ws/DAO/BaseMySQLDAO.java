@@ -10,16 +10,17 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.little_brainees.app.ws.DTO.ClassDTO;
-import com.little_brainees.app.ws.DTO.SubjectDTO;
-import com.little_brainees.app.ws.DTO.TeacherDTO;
+import com.little_brainees.app.ws.DTO.*;
 import com.little_brainees.app.ws.exceptions.DuplicateRecordFoundException;
 import com.little_brainees.app.ws.exceptions.ErrorMessages;
 import com.little_brainees.app.ws.exceptions.RecordNotFoundException;
 import com.little_brainees.app.ws.io.entity.ClassEntity;
+import com.little_brainees.app.ws.io.entity.ModuleEntity;
 import com.little_brainees.app.ws.io.entity.SubjectEntity;
 import com.little_brainees.app.ws.io.entity.TeacherEntity;
+import com.little_brainees.app.ws.io.entity.TopicEntity;
 import com.little_brainees.app.ws.utilities.HibernateUtils;
+import com.little_brainees.app.ws.utilities.LBLogger;
 import com.little_brainees.app.ws.utilities.ModelMapperUtil;
 
 public class BaseMySQLDAO implements DAO {
@@ -30,7 +31,7 @@ public class BaseMySQLDAO implements DAO {
 	public void openConnection() {
 		SessionFactory sessionFactory =  HibernateUtils.getSessionFactory();
 		this.session = sessionFactory.openSession();
-
+		LBLogger.logMessage("Session Open : "+this.session.isOpen());;
 	}
 	
 	@Override
@@ -42,17 +43,21 @@ public class BaseMySQLDAO implements DAO {
 	}
 	
 	
+	// ============================================================================================
+	
+		
+	
+	
 	// =============================================================================================
 		
 	@Override
 	public TeacherDTO getTeacherByEmail(String email) {
 		
 		TeacherDTO teacherDTO = null;
-		List<TeacherEntity> resultList = this.getTeacher(email); 
-		if( resultList != null && resultList.size() > 0) {		
-			TeacherEntity  teacherEntity = resultList.get(0);
+		TeacherEntity  teacherEntity = this.getTeacher(email); 
+		if( teacherEntity != null ) {		
 			try {
-			teacherDTO = ModelMapperUtil.shared.getMapper().map(teacherEntity, TeacherDTO.class);
+			teacherDTO = (TeacherDTO)ModelMapperUtil.map(teacherEntity, TeacherDTO.class);
 			}catch(Exception ex){
 				System.out.println("Error Occured");
 			}
@@ -62,14 +67,17 @@ public class BaseMySQLDAO implements DAO {
 	}
 	
 	
-	private List<TeacherEntity> getTeacher(String email){
+	private TeacherEntity getTeacher(String email){
 		CriteriaBuilder cb = session.getCriteriaBuilder();
 		CriteriaQuery<TeacherEntity> criteria = cb.createQuery(TeacherEntity.class);
 		Root<TeacherEntity> profileRoot = criteria.from(TeacherEntity.class);
 		criteria.select(profileRoot);
 		criteria.where(cb.equal(profileRoot.get("teacherEmail"), email));
 		Query<TeacherEntity> query = session.createQuery(criteria);
-		return query.getResultList();
+		List<TeacherEntity> resultList = query.getResultList();
+		LBLogger.logMessage("ResultList Size : " + resultList.size());
+		
+		return  (resultList == null || resultList.size() == 0)? null : resultList.get(0);
 	}
 
 
@@ -100,9 +108,8 @@ public class BaseMySQLDAO implements DAO {
 	public ClassDTO getClassByClassCode(String classCode) {
 	
 		ClassDTO classDTO = null;
-		List<ClassEntity> resultList = this.getClassBy(classCode);
-		if(resultList != null && resultList.size() > 0) {
-			ClassEntity classEntity = resultList.get(0);
+		ClassEntity classEntity = this.getClassBy(classCode);
+		if(classEntity != null ) {
 			try {
 			classDTO = new ClassDTO(classEntity.getClassCode(),classEntity.getClassName());
 			
@@ -116,7 +123,7 @@ public class BaseMySQLDAO implements DAO {
 		return classDTO;
 	}
 	
-	private List<ClassEntity> getClassBy(String classCode){
+	private ClassEntity getClassBy(String classCode){
 		
 		System.out.println("Is session open : "+session.isOpen());
 		CriteriaBuilder cb = session.getCriteriaBuilder();
@@ -125,8 +132,10 @@ public class BaseMySQLDAO implements DAO {
 		criteria.select(profileRoot);
 		criteria.where(cb.equal(profileRoot.get("classCode"),classCode));
 		Query<ClassEntity> query = session.createQuery(criteria);
+		List<ClassEntity> resultList = query.getResultList();
+		LBLogger.logMessage("ResultList Size : " + resultList.size());
+		return  (resultList == null || resultList.size() == 0)? null : resultList.get(0);
 		
-		return query.getResultList();
 	}
 	
 
@@ -134,9 +143,9 @@ public class BaseMySQLDAO implements DAO {
 	public ClassDTO saveClass(ClassDTO classDTO){
 		
 		if (this.getClassByClassCode(classDTO.getClassCode()) != null)
-		  throw new DuplicateRecordFoundException(ErrorMessages.DUPLICATE_RECORD_FOUND.getErrorMessage());	
+		     throw new DuplicateRecordFoundException(ErrorMessages.DUPLICATE_RECORD_FOUND.getErrorMessage());	
 		     
-			ClassEntity classEntity = ModelMapperUtil.shared.getMapper().map(classDTO, ClassEntity.class);
+			ClassEntity classEntity = (ClassEntity)ModelMapperUtil.map(classDTO, ClassEntity.class);
 			try {
 			session.beginTransaction();
 			session.save(classEntity);
@@ -144,7 +153,7 @@ public class BaseMySQLDAO implements DAO {
 			}catch(Exception ex) {
 				throw new RuntimeException(ex.getLocalizedMessage());
 			}
-			ClassDTO createdDTO = ModelMapperUtil.shared.getMapper().map(classEntity, ClassDTO.class);
+			ClassDTO createdDTO = (ClassDTO)ModelMapperUtil.map(classEntity, ClassDTO.class);
 			return createdDTO;
 		}
 	
@@ -154,17 +163,11 @@ public class BaseMySQLDAO implements DAO {
 	public SubjectDTO getSubjectBySubjectCode(String subjectCode) {
 		SubjectDTO subjectDTO = null;
 		
-		System.out.println("before subject resultList");
-		List<SubjectEntity> resultList = this.getSubject(subjectCode);
-		System.out.println("after subject resultList");
-		
-		if (resultList != null && resultList.size() > 0) {
-			SubjectEntity subjectEntity = resultList.get(0);
-			
+		SubjectEntity subjectEntity = this.getSubject(subjectCode);
+		LBLogger.logMessage("Modules present in - "+subjectEntity.toString()+" are : "+subjectEntity.getModules().get(0).getTopics());
+		if (subjectEntity != null ) {
 			try {
-				System.out.println("before mapping");
-				subjectDTO = ModelMapperUtil.shared.getMapper().map(subjectEntity, SubjectDTO.class);
-				System.out.println("afterMapping");
+				subjectDTO = (SubjectDTO)ModelMapperUtil.map(subjectEntity, SubjectDTO.class);
 			}catch(Exception ex) {
 				throw new RuntimeException(ex.getLocalizedMessage());
 			}
@@ -175,35 +178,37 @@ public class BaseMySQLDAO implements DAO {
 		return subjectDTO;
 	}
 	
-	private List<SubjectEntity> getSubject(String subjectCode){
+	private SubjectEntity getSubject(String subjectCode){
 		CriteriaBuilder cb = session.getCriteriaBuilder();
 		CriteriaQuery<SubjectEntity> criteria = cb.createQuery(SubjectEntity.class);
 		Root<SubjectEntity> profileRoot = criteria.from(SubjectEntity.class);
 		criteria.select(profileRoot);
 		criteria.where(cb.equal(profileRoot.get("subjectCode"),subjectCode));
 		Query<SubjectEntity> query = session.createQuery(criteria);
-		return query.getResultList();
+		List<SubjectEntity> resultList = query.getResultList();
+		LBLogger.logMessage("ResultList Size : " + resultList.size());
+		return  (resultList == null || resultList.size() == 0)? null : resultList.get(0);
+		
 	}
 
 	@Override
 	public SubjectDTO saveSubject(SubjectDTO subjectDTO) {
 		
-		SubjectDTO existingDTO = this.getSubjectBySubjectCode(subjectDTO.getSubjectCode());
-	       if (existingDTO != null) {
+	       if (this.getSubjectBySubjectCode(subjectDTO.getSubjectCode()) != null) {
 	    	   throw new DuplicateRecordFoundException(ErrorMessages.DUPLICATE_RECORD_FOUND.getErrorMessage());
 	       }
 	       
 	       
 		ClassEntity classEntity = null;
 		try {		
-			classEntity =  this.getClassBy(subjectDTO.getClassCode()).get(0);			
+			classEntity =  this.getClassBy(subjectDTO.getClassCode());	
 		}catch(Exception ex) {
 			System.out.println(ex.getLocalizedMessage());
 			throw new RecordNotFoundException(ErrorMessages.RECORD_NOT_FOUND.getErrorMessage());
 		}
 		
 		System.out.println("Class Retrieved with Code : " + classEntity.getClassCode());
-		SubjectEntity subjectEntity = ModelMapperUtil.shared.getMapper().map(subjectDTO,SubjectEntity.class);
+		SubjectEntity subjectEntity = (SubjectEntity)ModelMapperUtil.map(subjectDTO,SubjectEntity.class);
 		classEntity.addSubjectEntity(subjectEntity);
 	    subjectEntity.setClassEntity(classEntity);
 	    
@@ -215,19 +220,144 @@ public class BaseMySQLDAO implements DAO {
 	    	throw new RuntimeException(ex.getLocalizedMessage());
 	    }
 		
-		return ModelMapperUtil.shared.getMapper().map(subjectEntity, SubjectDTO.class);
+		return (SubjectDTO)ModelMapperUtil.map(subjectEntity, SubjectDTO.class);
 	}
 	
 	
 	// =============================================================================================
 	
-	
-	private void checkSession() {
-		if(!session.isOpen())
-		   {
-			this.openConnection();
-		   }
+	@Override
+	public ModuleDTO getModuleByModuleCode(String moduleCode) {
+		ModuleDTO moduleDTO = null;
+		SubjectEntity subjectEntity = this.getSubject(moduleCode);
+		if (subjectEntity != null ) {
+			try {
+				moduleDTO = (ModuleDTO)ModelMapperUtil.map(subjectEntity, SubjectDTO.class);
+			}catch(Exception ex) {
+				throw new RuntimeException(ex.getLocalizedMessage());
+			}
+		}
+		
+		System.out.println("Subject found with subject code : " + (moduleDTO == null));
+		return moduleDTO;
 	}
+	
+	private ModuleEntity getModule(String moduleCode){
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<ModuleEntity> criteria = cb.createQuery(ModuleEntity.class);
+		Root<ModuleEntity> profileRoot = criteria.from(ModuleEntity.class);
+		criteria.select(profileRoot);
+		criteria.where(cb.equal(profileRoot.get("moduleCode"),moduleCode));
+		Query<ModuleEntity> query = session.createQuery(criteria);
+		List<ModuleEntity> resultList = query.getResultList();
+		LBLogger.logMessage("ResultList Size : " + resultList.size());
+		return  (resultList == null || resultList.size() == 0)? null : resultList.get(0);
+		
+	}
+
+	@Override
+	public ModuleDTO saveModule(ModuleDTO moduleDTO) {
+		
+	       if (this.getModuleByModuleCode(moduleDTO.getModuleCode()) != null) {
+	    	   throw new DuplicateRecordFoundException(ErrorMessages.DUPLICATE_RECORD_FOUND.getErrorMessage());
+	       }
+	       
+		SubjectEntity subjectEntity = null;
+		try {		
+			subjectEntity =  this.getSubject(moduleDTO.getSubjectCode());		
+		}catch(Exception ex) {
+			System.out.println(ex.getLocalizedMessage());
+			throw new RecordNotFoundException(ErrorMessages.RECORD_NOT_FOUND.getErrorMessage());
+		}
+		
+		System.out.println("subject Retrieved with Code : " + subjectEntity.getSubjectCode());
+		ModuleEntity moduleEntity = (ModuleEntity)ModelMapperUtil.map(moduleDTO,ModuleEntity.class);
+		subjectEntity.addModuleEntity(moduleEntity);
+	    moduleEntity.setSubject(subjectEntity);
+	    
+	    try {
+	    	session.beginTransaction();
+	    	session.save(moduleEntity);
+	    	session.getTransaction().commit();
+	    }catch(Exception ex) {
+	    	throw new RuntimeException(ex.getLocalizedMessage());
+	    }
+		
+		return (ModuleDTO)ModelMapperUtil.map(moduleEntity, ModuleDTO.class);
+	}
+	
+	// =============================================================================================
+	
+
+	@Override
+	public TopicDTO getTopicByTopicCode(String topicCode) {
+		TopicDTO topicDTO = null;
+		TopicEntity topicEntity = this.getTopic(topicCode);
+		if (topicEntity != null ) {
+			try {
+				topicDTO = (TopicDTO)ModelMapperUtil.map(topicEntity, TopicDTO.class);
+			}catch(Exception ex) {
+				throw new RuntimeException(ex.getLocalizedMessage());
+			}
+		}
+		
+		System.out.println("Topic Object Found : " + (topicDTO != null));
+		return topicDTO;
+	}
+	
+	private TopicEntity getTopic(String topicCode){
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<TopicEntity> criteria = cb.createQuery(TopicEntity.class);
+		Root<TopicEntity> profileRoot = criteria.from(TopicEntity.class);
+		criteria.select(profileRoot);
+		criteria.where(cb.equal(profileRoot.get("topicCode"),topicCode));
+		Query<TopicEntity> query = session.createQuery(criteria);
+		List<TopicEntity> resultList = query.getResultList();
+		LBLogger.logMessage("ResultList Size : " + resultList.size());
+		return  (resultList == null || resultList.size() == 0)? null : resultList.get(0);
+	}
+
+	@Override
+	public TopicDTO saveTopic(TopicDTO topicDTO) {
+		LBLogger.logMessage("saveTopic", topicDTO.toString());
+	
+		 if (this.getTopicByTopicCode(topicDTO.getTopicCode()) != null) {
+			 LBLogger.logError("Topic already exist");
+	    	   throw new DuplicateRecordFoundException(ErrorMessages.DUPLICATE_RECORD_FOUND.getErrorMessage());
+	       }
+	       
+		 
+		ModuleEntity moduleEntity = null;
+		
+	
+		try {		
+			moduleEntity =  this.getModule(topicDTO.getModuleCode());		
+		}catch(Exception ex) {
+			LBLogger.logError(ex.getMessage());
+			throw new RecordNotFoundException(ErrorMessages.RECORD_NOT_FOUND.getErrorMessage());
+		}
+		
+		LBLogger.logMessage("ModuleEntity null : "+(moduleEntity == null));
+		
+		LBLogger.logMessage("Module Retrieved  : " + moduleEntity.toString());
+		TopicEntity topicEntity = (TopicEntity)ModelMapperUtil.map(topicDTO,TopicEntity.class);
+		LBLogger.logMessage("Save Topic -",topicEntity.toString());
+		moduleEntity.addTopic(topicEntity);
+		topicEntity.setEntity(moduleEntity);
+	    try {
+	    	session.beginTransaction();
+	    	session.save(topicEntity);
+	    	session.getTransaction().commit();
+	    }catch(Exception ex) {
+	    	LBLogger.logError(ex.getMessage());
+	    	throw new RuntimeException(ex.getLocalizedMessage());
+	    }
+	    
+		return (TopicDTO)ModelMapperUtil.map(moduleEntity, TopicDTO.class);
+	}
+	
+	// =============================================================================================
+	
 	
 		
 	}

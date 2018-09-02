@@ -43,4 +43,10 @@ public class ClassDTO extends BaseDTO implements Serializable {
 	public void setClassName(String className) {
 		this.className = className;
 	}
+	
+	
+	@Override
+	public String toString() {
+		return "Class [ ClassCode :"+ this.classCode+", ClassName : "+this.className+"]";
+	}
 }

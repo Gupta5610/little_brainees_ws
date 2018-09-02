@@ -8,7 +8,6 @@ import java.util.List;
 import com.little_brainees.app.ws.DAO.BaseMySQLDAO;
 import com.little_brainees.app.ws.DAO.DAO;
 import com.little_brainees.app.ws.DTO.SubjectDTO;
-import com.little_brainees.app.ws.exceptions.DuplicateRecordFoundException;
 import com.little_brainees.app.ws.exceptions.ErrorMessages;
 import com.little_brainees.app.ws.exceptions.RecordNotFoundException;
 import com.little_brainees.app.ws.utilities.ValidationUtility;

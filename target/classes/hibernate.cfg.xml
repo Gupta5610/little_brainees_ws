@@ -58,7 +58,9 @@ Contributor(s):
          
         <mapping class = "com.little_brainees.app.ws.io.entity.TeacherEntity"></mapping>
         <mapping class = "com.little_brainees.app.ws.io.entity.ClassEntity"></mapping>
-         <mapping class = "com.little_brainees.app.ws.io.entity.SubjectEntity"></mapping>
+        <mapping class = "com.little_brainees.app.ws.io.entity.SubjectEntity"></mapping>
+        <mapping class = "com.little_brainees.app.ws.io.entity.ModuleEntity"></mapping>
+        <mapping class = "com.little_brainees.app.ws.io.entity.TopicEntity"></mapping>
         
  
     </session-factory>

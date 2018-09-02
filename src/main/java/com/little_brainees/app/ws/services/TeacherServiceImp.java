@@ -27,7 +27,7 @@ public class TeacherServiceImp implements TeacherService {
 		
 	}
 
-	public TeacherDTO CreateTeacher(TeacherDTO teacherDTO) throws DuplicateRecordFoundException{
+	public TeacherDTO CreateTeacher(TeacherDTO teacherDTO){
 		ValidationUtility.validateRequiredFieldsInDTO(teacherDTO);	
 		    return this.saveTeacher(teacherDTO);
 	}
@@ -77,7 +77,7 @@ public class TeacherServiceImp implements TeacherService {
 	public TeacherDTO randomteacher() throws RecordNotFoundException {
 		TeacherDTO responseObject = null;
 		
-		responseObject =  this.getTeacherByEmail("ashuclddude5610@gmail.com");
+		responseObject =  this.getTeacherByEmail("ashucooldude5610@gmail.com");
 		
 		if(responseObject == null) {
 			throw new RecordNotFoundException(ErrorMessages.RECORD_NOT_FOUND.getErrorMessage());

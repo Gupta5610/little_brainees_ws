@@ -4,7 +4,7 @@ import org.modelmapper.ModelMapper;
 
 public class ModelMapperUtil {
 	
-	public static ModelMapperUtil shared = new ModelMapperUtil();
+	private static ModelMapperUtil shared = new ModelMapperUtil();
 	private ModelMapper mapper;
 	
 	private ModelMapperUtil() {
@@ -13,5 +13,9 @@ public class ModelMapperUtil {
 	
 	public ModelMapper getMapper() {
 		return this.mapper;
+	}
+	
+	public static Object map(Object source,Class type) {
+		return shared.mapper.map(source, type);
 	}
 }

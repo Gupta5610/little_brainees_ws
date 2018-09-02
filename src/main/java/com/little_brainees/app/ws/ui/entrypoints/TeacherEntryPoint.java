@@ -50,7 +50,7 @@ public class TeacherEntryPoint {
    public Response getTeachers() {
     	TeacherDTO teacherDTO;
     	try {
-         teacherDTO = TeacherServiceImp.shared.randomteacher();
+         teacherDTO = this.teacherService.randomteacher();
     	}catch(Exception ex) {
     		return ExceptionMapper.Response(ex);
     	}
