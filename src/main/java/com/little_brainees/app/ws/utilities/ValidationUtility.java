@@ -3,12 +3,22 @@ package com.little_brainees.app.ws.utilities;
 import com.little_brainees.app.ws.DTO.*;
 import com.little_brainees.app.ws.exceptions.ErrorMessages;
 import com.little_brainees.app.ws.exceptions.MissingRequiredFieldException;
+import com.little_brainees.app.ws.shared.RequestDTO;
 
 public final class ValidationUtility {
 	 
 	
 	private static MissingRequiredFieldException missingRequiredFieldException = new MissingRequiredFieldException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
 
+	
+	public static void validateRequestObject(RequestDTO requestDTO) {
+		if(requestDTO.getRequestString() == null || requestDTO.getRequestString().isEmpty() ||
+		   requestDTO.getType() == null ) {
+			throw missingRequiredFieldException;
+		}
+		
+	}
+	
 	public static void validateRequiredFieldsInDTO(BaseDTO baseDTO) {
 		
 		 if(baseDTO instanceof TeacherDTO) {
@@ -79,6 +89,5 @@ public final class ValidationUtility {
 			throw new MissingRequiredFieldException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
 		}
 	}
-	
 	
 }

@@ -5,17 +5,21 @@ package com.little_brainees.app.ws.ui.entrypoints;
 
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.little_brainees.app.ws.DTO.ClassDTO;
 import com.little_brainees.app.ws.DTO.ModuleDTO;
 import com.little_brainees.app.ws.exceptions.ExceptionMapper;
-import com.little_brainees.app.ws.services.ModuleService;
-import com.little_brainees.app.ws.services.ModuleServiceImp;
+import com.little_brainees.app.ws.services.DatabaseService;
+import com.little_brainees.app.ws.services.IDatabaseService;
+import com.little_brainees.app.ws.shared.RequestDTO;
 import com.little_brainees.app.ws.utilities.ResponseBuilderUtil;
 
 /**
@@ -28,10 +32,10 @@ import com.little_brainees.app.ws.utilities.ResponseBuilderUtil;
 public class ModuleEntryPoint {
 	
 	
-	private ModuleService service;
+	private IDatabaseService service;
 	
 	public ModuleEntryPoint() {
-		this.service = new ModuleServiceImp();
+		this.service = DatabaseService.shared;
 	}
 	
 	@POST
@@ -42,12 +46,27 @@ public class ModuleEntryPoint {
 	  ModuleDTO responseDTO = null;
 	  
 	  try {
-		 responseDTO =  this.service.createModule(moduleDTO);
+		 responseDTO =  (ModuleDTO)this.service.createEntity(moduleDTO);
 	  }catch(Exception ex) {
 		  return ExceptionMapper.Response(ex);
 	  }
 		
 		return ResponseBuilderUtil.createResponse(Status.CREATED, responseDTO);
+	}
+	
+	@Path("/{moduleCode}")
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getClassWith(@PathParam("moduleCode") String moduleCode) {
+		
+		ModuleDTO createdDTO = null;
+		
+		try {
+	    	createdDTO =(ModuleDTO)this.service.getEntity(new RequestDTO(moduleCode,ModuleDTO.class));
+	    }catch(Exception ex){
+	    	return ExceptionMapper.Response(ex);
+	    }
+		return ResponseBuilderUtil.createResponse(Status.FOUND, createdDTO);
 	}
 	
 	

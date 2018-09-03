@@ -7,7 +7,7 @@ import javax.xml.bind.annotation.*;;
 
 
 @XmlRootElement 
-public class TeacherDTO extends BaseDTO implements Serializable{
+public class TeacherDTO implements Serializable,BaseDTO{
 	
 	private static final long  serialVersionUID = 1L;
 	String teacherID;

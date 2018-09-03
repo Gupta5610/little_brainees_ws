@@ -4,6 +4,7 @@
 package com.little_brainees.app.ws.DTO;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -13,7 +14,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 
 @XmlRootElement 
-public class ClassDTO extends BaseDTO implements Serializable {
+public class ClassDTO  implements Serializable,BaseDTO {
     /**
 	 * 
 	 */
@@ -21,7 +22,24 @@ public class ClassDTO extends BaseDTO implements Serializable {
 	String classCode;
     String className;
     
-    public ClassDTO() {
+    List<SubjectDTO> subjects;
+    
+    
+    /**
+	 * @return the subjects
+	 */
+	public List<SubjectDTO> getSubjects() {
+		return subjects;
+	}
+
+	/**
+	 * @param subjects the subjects to set
+	 */
+	public void setSubjects(List<SubjectDTO> subjects) {
+		this.subjects = subjects;
+	}
+
+	public ClassDTO() {
     	
     }
     

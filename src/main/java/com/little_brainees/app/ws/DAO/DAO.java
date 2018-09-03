@@ -1,26 +1,54 @@
+/**
+ * 
+ */
 package com.little_brainees.app.ws.DAO;
 
-import com.little_brainees.app.ws.DTO.*;
+import java.util.List;
 
-public interface DAO {
+import com.little_brainees.app.ws.DTO.BaseDTO;
+import com.little_brainees.app.ws.shared.RequestDTO;
+
+/**
+ * @author ashish
+ *
+ */
+public class DAO implements IDAO {
+
 	
-	// =============================================================================================
-	public void openConnection();
-	public void closeConnection();
-	// =============================================================================================
-	public TeacherDTO getTeacherByEmail(String email);
-	public TeacherDTO saveTeacher(TeacherDTO teacherDTO);
-	// =============================================================================================
-	public ClassDTO getClassByClassCode(String classCode);
-	public ClassDTO saveClass(ClassDTO classDTO);
-	// =============================================================================================
-	public SubjectDTO getSubjectBySubjectCode(String subjectCode);
-	public SubjectDTO saveSubject(SubjectDTO subjectDTO);
-	// =============================================================================================
-	public ModuleDTO getModuleByModuleCode(String moduleCode);
-	public ModuleDTO saveModule(ModuleDTO moduleDTO);
-	// =============================================================================================
-	public TopicDTO getTopicByTopicCode(String topicCode);
-	public TopicDTO saveTopic(TopicDTO topicDTO);
+	private MySQLDAO mySqlDatabase = new MySQLDAO();
+	
+	
+	@Override
+	public BaseDTO createEntity(BaseDTO requestDTO) {
+		return this.mySqlDatabase.saveEntity(requestDTO);
+	}
 
+	@Override
+	public List<BaseDTO> getAllEntity(RequestDTO requestDTO) {
+		
+		return null;
+	}
+
+	@Override
+	public BaseDTO getEntity(RequestDTO requestDTO) {
+		
+		return this.mySqlDatabase.getEntity(requestDTO);
+	}
+
+	@Override
+	public BaseDTO updateEntity(BaseDTO baseDTO) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void openConnection() {
+		this.mySqlDatabase.openConnection();
+	}
+
+	@Override
+	public void closeConnection() {
+		this.mySqlDatabase.closeConnection();
+	}
+	
 }

@@ -1,13 +1,14 @@
 package com.little_brainees.app.ws.DTO;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement 
-public class ModuleDTO extends BaseDTO implements Serializable {
+public class ModuleDTO  implements Serializable,BaseDTO {
 	/**
 	 * 
 	 */
@@ -20,9 +21,20 @@ public class ModuleDTO extends BaseDTO implements Serializable {
 	String moduleCode;
 	String moduleName;
 	
+	List<TopicDTO> topics;
 	
-	
-	
+	/**
+	 * @return the topics
+	 */
+	public List<TopicDTO> getTopics() {
+		return topics;
+	}
+	/**
+	 * @param topics the topics to set
+	 */
+	public void setTopics(List<TopicDTO> topics) {
+		this.topics = topics;
+	}
 	public String getSubjectCode() {
 		return subjectCode;
 	}

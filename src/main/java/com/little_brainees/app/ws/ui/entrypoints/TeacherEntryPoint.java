@@ -1,7 +1,7 @@
 package com.little_brainees.app.ws.ui.entrypoints;
 
-import com.little_brainees.app.ws.services.TeacherService;
-import com.little_brainees.app.ws.services.TeacherServiceImp;
+import com.little_brainees.app.ws.services.DatabaseService;
+import com.little_brainees.app.ws.services.IDatabaseService;
 import com.little_brainees.app.ws.utilities.ResponseBuilderUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.little_brainees.app.ws.DTO.TeacherDTO;
@@ -24,10 +24,10 @@ import javax.ws.rs.core.Response.Status;
 public class TeacherEntryPoint {
 	
 	
-	TeacherService teacherService ;
+	IDatabaseService teacherService ;
 	
 	public TeacherEntryPoint() {
-		this.teacherService = TeacherServiceImp.shared;
+		this.teacherService = DatabaseService.shared;
 	}
 	
 	@POST
@@ -37,7 +37,7 @@ public class TeacherEntryPoint {
 		TeacherDTO teacherDTO = (new ObjectMapper()).convertValue(requestObject, TeacherDTO.class);
 		TeacherDTO createdDTO ;
 		try {
-			  createdDTO =  this.teacherService.CreateTeacher(teacherDTO);
+			  createdDTO = (TeacherDTO)this.teacherService.createEntity(teacherDTO);
 		}catch(Exception ex) {
 			return ExceptionMapper.Response(ex);
 		}
@@ -45,18 +45,18 @@ public class TeacherEntryPoint {
 	    return ResponseBuilderUtil.createResponse(Status.CREATED, createdDTO);
    } 
 	
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-   public Response getTeachers() {
-    	TeacherDTO teacherDTO;
-    	try {
-         teacherDTO = this.teacherService.randomteacher();
-    	}catch(Exception ex) {
-    		return ExceptionMapper.Response(ex);
-    	}
-    	
-	   return  ResponseBuilderUtil.createResponse(Status.OK, teacherDTO);
-   }
+//    @GET
+//    @Produces(MediaType.APPLICATION_JSON)
+//   public Response getTeachers() {
+//    	TeacherDTO teacherDTO;
+//    	try {
+//       //  teacherDTO = this.teacherService.randomteacher();
+//    	}catch(Exception ex) {
+//    		return ExceptionMapper.Response(ex);
+//    	}
+//    	
+//	   return  ResponseBuilderUtil.createResponse(Status.OK, teacherDTO);
+//   }
     
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)

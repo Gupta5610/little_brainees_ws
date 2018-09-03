@@ -19,15 +19,16 @@ import com.little_brainees.app.ws.io.entity.ModuleEntity;
 import com.little_brainees.app.ws.io.entity.SubjectEntity;
 import com.little_brainees.app.ws.io.entity.TeacherEntity;
 import com.little_brainees.app.ws.io.entity.TopicEntity;
+import com.little_brainees.app.ws.shared.RequestDTO;
 import com.little_brainees.app.ws.utilities.HibernateUtils;
 import com.little_brainees.app.ws.utilities.LBLogger;
 import com.little_brainees.app.ws.utilities.ModelMapperUtil;
 
-public class BaseMySQLDAO implements DAO {
+public class MySQLDAO implements IMySQLDAO {
 	
 	Session session ;
 
-	@Override 
+	@Override
 	public void openConnection() {
 		SessionFactory sessionFactory =  HibernateUtils.getSessionFactory();
 		this.session = sessionFactory.openSession();
@@ -44,14 +45,54 @@ public class BaseMySQLDAO implements DAO {
 	
 	
 	// ============================================================================================
-	
+	@Override
+    public BaseDTO getEntity(RequestDTO requestDTO) {
+    	
+    	BaseDTO resultDTO = null;
+    	Class type = requestDTO.getType();
+    	String requestParameter = requestDTO.getRequestString();
+    	LBLogger.logMessage("getEnity()", "requestDTO value : ", type + " , " + requestParameter);
+    	
+    	if (type == TeacherDTO.class)
+    	   resultDTO = this.getTeacherByEmail(requestParameter);
+    	else if(type == ClassDTO.class)
+    		resultDTO = this.getClassByClassCode(requestParameter);
+    	else if(type == SubjectDTO.class)
+    		resultDTO = this.getSubjectBySubjectCode(requestParameter);
+    	else if(type == ModuleDTO.class)
+    		resultDTO = this.getModuleByModuleCode(requestParameter);
+    	else if(type == TopicDTO.class)
+    		resultDTO = this.getTopicByTopicCode(requestParameter);
+    	
+    	return resultDTO;
+    }
+    
+	@Override
+    public BaseDTO saveEntity(BaseDTO requestDTO) {
+    	BaseDTO resultDTO = null;
+       
+    	LBLogger.logMessage("SaveEntity() called");
+    	if(requestDTO instanceof TeacherDTO) {
+    		resultDTO = this.saveTeacher((TeacherDTO) requestDTO);
+    	}else if (requestDTO instanceof ClassDTO) {
+    		resultDTO = this.saveClass((ClassDTO)requestDTO);
+    	}else if (requestDTO instanceof SubjectDTO) {
+    		resultDTO = this.saveSubject((SubjectDTO)requestDTO);
+    	}else if (requestDTO instanceof ModuleDTO) {
+    		resultDTO = this.saveModule((ModuleDTO)requestDTO);
+    	}else if (requestDTO instanceof TopicDTO) {
+    		resultDTO = this.saveTopic((TopicDTO)requestDTO);
+    	}
+    	return resultDTO;
+    }
 		
 	
 	
 	// =============================================================================================
 		
-	@Override
-	public TeacherDTO getTeacherByEmail(String email) {
+	
+	
+    private TeacherDTO getTeacherByEmail(String email) {
 		
 		TeacherDTO teacherDTO = null;
 		TeacherEntity  teacherEntity = this.getTeacher(email); 
@@ -82,8 +123,8 @@ public class BaseMySQLDAO implements DAO {
 
 
 
-	@Override
-	public TeacherDTO saveTeacher(TeacherDTO teacherDTO) {
+	
+	private TeacherDTO saveTeacher(TeacherDTO teacherDTO) {
 			
 		if (this.getTeacherByEmail(teacherDTO.getTeacherEmail()) != null) 
 			throw new DuplicateRecordFoundException(ErrorMessages.DUPLICATE_RECORD_FOUND.getErrorMessage());
@@ -104,8 +145,8 @@ public class BaseMySQLDAO implements DAO {
 	
 	// =============================================================================================
 	
-	@Override
-	public ClassDTO getClassByClassCode(String classCode) {
+	
+	private ClassDTO getClassByClassCode(String classCode) {
 	
 		ClassDTO classDTO = null;
 		ClassEntity classEntity = this.getClassBy(classCode);
@@ -114,12 +155,9 @@ public class BaseMySQLDAO implements DAO {
 			classDTO = new ClassDTO(classEntity.getClassCode(),classEntity.getClassName());
 			
 			}catch(Exception ex) {
-				System.out.println("Error Occured");
+				LBLogger.logError(ex.getLocalizedMessage());
 			}
 		}
-		
-		System.out.println("No record Found : " + (classDTO == null));
-		
 		return classDTO;
 	}
 	
@@ -139,8 +177,8 @@ public class BaseMySQLDAO implements DAO {
 	}
 	
 
-	@Override
-	public ClassDTO saveClass(ClassDTO classDTO){
+	
+	private ClassDTO saveClass(ClassDTO classDTO){
 		
 		if (this.getClassByClassCode(classDTO.getClassCode()) != null)
 		     throw new DuplicateRecordFoundException(ErrorMessages.DUPLICATE_RECORD_FOUND.getErrorMessage());	
@@ -159,12 +197,11 @@ public class BaseMySQLDAO implements DAO {
 	
 	// =============================================================================================
 
-	@Override
-	public SubjectDTO getSubjectBySubjectCode(String subjectCode) {
+	
+	private SubjectDTO getSubjectBySubjectCode(String subjectCode) {
 		SubjectDTO subjectDTO = null;
 		
 		SubjectEntity subjectEntity = this.getSubject(subjectCode);
-		LBLogger.logMessage("Modules present in - "+subjectEntity.toString()+" are : "+subjectEntity.getModules().get(0).getTopics());
 		if (subjectEntity != null ) {
 			try {
 				subjectDTO = (SubjectDTO)ModelMapperUtil.map(subjectEntity, SubjectDTO.class);
@@ -191,8 +228,8 @@ public class BaseMySQLDAO implements DAO {
 		
 	}
 
-	@Override
-	public SubjectDTO saveSubject(SubjectDTO subjectDTO) {
+	
+	private SubjectDTO saveSubject(SubjectDTO subjectDTO) {
 		
 	       if (this.getSubjectBySubjectCode(subjectDTO.getSubjectCode()) != null) {
 	    	   throw new DuplicateRecordFoundException(ErrorMessages.DUPLICATE_RECORD_FOUND.getErrorMessage());
@@ -226,13 +263,13 @@ public class BaseMySQLDAO implements DAO {
 	
 	// =============================================================================================
 	
-	@Override
-	public ModuleDTO getModuleByModuleCode(String moduleCode) {
+	
+	private ModuleDTO getModuleByModuleCode(String moduleCode) {
 		ModuleDTO moduleDTO = null;
-		SubjectEntity subjectEntity = this.getSubject(moduleCode);
-		if (subjectEntity != null ) {
+		ModuleEntity moduleEntity = this.getModule(moduleCode);
+		if (moduleEntity != null ) {
 			try {
-				moduleDTO = (ModuleDTO)ModelMapperUtil.map(subjectEntity, SubjectDTO.class);
+				moduleDTO = (ModuleDTO)ModelMapperUtil.map(moduleEntity, ModuleDTO.class);
 			}catch(Exception ex) {
 				throw new RuntimeException(ex.getLocalizedMessage());
 			}
@@ -243,6 +280,7 @@ public class BaseMySQLDAO implements DAO {
 	}
 	
 	private ModuleEntity getModule(String moduleCode){
+		LBLogger.logMessage("getModule() called");
 		CriteriaBuilder cb = session.getCriteriaBuilder();
 		CriteriaQuery<ModuleEntity> criteria = cb.createQuery(ModuleEntity.class);
 		Root<ModuleEntity> profileRoot = criteria.from(ModuleEntity.class);
@@ -255,8 +293,8 @@ public class BaseMySQLDAO implements DAO {
 		
 	}
 
-	@Override
-	public ModuleDTO saveModule(ModuleDTO moduleDTO) {
+	
+	private ModuleDTO saveModule(ModuleDTO moduleDTO) {
 		
 	       if (this.getModuleByModuleCode(moduleDTO.getModuleCode()) != null) {
 	    	   throw new DuplicateRecordFoundException(ErrorMessages.DUPLICATE_RECORD_FOUND.getErrorMessage());
@@ -289,8 +327,8 @@ public class BaseMySQLDAO implements DAO {
 	// =============================================================================================
 	
 
-	@Override
-	public TopicDTO getTopicByTopicCode(String topicCode) {
+	
+	private TopicDTO getTopicByTopicCode(String topicCode) {
 		TopicDTO topicDTO = null;
 		TopicEntity topicEntity = this.getTopic(topicCode);
 		if (topicEntity != null ) {
@@ -306,6 +344,9 @@ public class BaseMySQLDAO implements DAO {
 	}
 	
 	private TopicEntity getTopic(String topicCode){
+		
+		LBLogger.logMessage("getTopic(String topicCode) : ", topicCode);
+		
 		CriteriaBuilder cb = session.getCriteriaBuilder();
 		CriteriaQuery<TopicEntity> criteria = cb.createQuery(TopicEntity.class);
 		Root<TopicEntity> profileRoot = criteria.from(TopicEntity.class);
@@ -317,8 +358,8 @@ public class BaseMySQLDAO implements DAO {
 		return  (resultList == null || resultList.size() == 0)? null : resultList.get(0);
 	}
 
-	@Override
-	public TopicDTO saveTopic(TopicDTO topicDTO) {
+	
+	private TopicDTO saveTopic(TopicDTO topicDTO) {
 		LBLogger.logMessage("saveTopic", topicDTO.toString());
 	
 		 if (this.getTopicByTopicCode(topicDTO.getTopicCode()) != null) {

@@ -23,6 +23,10 @@ public final class LBLogger {
 		System.out.println(message +" - " + topicDTO);
 	}
 	
+	
+	public static void logMessage(String functionName , String message,String topicDTO) {
+		System.out.println("Function Name : "+functionName +"\nMessage : "+message + " - " + topicDTO);
+	}
 	public static void logError(String error) {
 		System.err.println(error);
 	}

@@ -15,7 +15,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 
 @XmlRootElement
-public class TopicDTO extends BaseDTO implements Serializable{
+public class TopicDTO implements Serializable,BaseDTO{
 
 	 /**
 	 * 

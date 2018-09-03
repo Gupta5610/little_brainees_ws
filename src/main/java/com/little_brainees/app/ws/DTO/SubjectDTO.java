@@ -1,28 +1,44 @@
 package com.little_brainees.app.ws.DTO;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement
-public class SubjectDTO extends BaseDTO implements Serializable {
+public class SubjectDTO  implements Serializable , BaseDTO {
 	
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	String subjectCode;
+	
 	
 	@Transient
 	@Column(name = "ClassCode")
 	String classCode;
-	
+	String subjectCode;
 	String subjectName;
 	
+	List<ModuleDTO> modules;
 	
+	/**
+	 * @return the modules
+	 */
+	public List<ModuleDTO> getModules() {
+		return modules;
+	}
+
+	/**
+	 * @param modules the modules to set
+	 */
+	public void setModules(List<ModuleDTO> modules) {
+		this.modules = modules;
+	}
+
 	public SubjectDTO() {
 		
 	}

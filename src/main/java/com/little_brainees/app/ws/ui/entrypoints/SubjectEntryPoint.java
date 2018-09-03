@@ -4,26 +4,29 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.little_brainees.app.ws.DTO.ModuleDTO;
 import com.little_brainees.app.ws.DTO.SubjectDTO;
 import com.little_brainees.app.ws.exceptions.ExceptionMapper;
 import com.little_brainees.app.ws.request.CreateSubjectRequest;
-import com.little_brainees.app.ws.services.SubjectService;
-import com.little_brainees.app.ws.services.SubjectServiceImp;
+import com.little_brainees.app.ws.services.DatabaseService;
+import com.little_brainees.app.ws.services.IDatabaseService;
+import com.little_brainees.app.ws.shared.RequestDTO;
 import com.little_brainees.app.ws.utilities.ModelMapperUtil;
 import com.little_brainees.app.ws.utilities.ResponseBuilderUtil;
 
 @Path("/subject")
 public class SubjectEntryPoint {
  
-	SubjectService service;
+	IDatabaseService service;
 	
 	public SubjectEntryPoint() {
-		this.service = SubjectServiceImp.shared;
+		this.service = DatabaseService.shared;
 	}
 	
 	
@@ -34,7 +37,7 @@ public class SubjectEntryPoint {
 		SubjectDTO requestDTO = (SubjectDTO)ModelMapperUtil.map(requestObject, SubjectDTO.class);
 		SubjectDTO responseDTO ;
 		try {
-			responseDTO = this.service.createSubject(requestDTO);
+			responseDTO = (SubjectDTO)this.service.createEntity(requestDTO);
 		}catch(Exception ex){
 			return ExceptionMapper.Response(ex);
 		}
@@ -42,17 +45,19 @@ public class SubjectEntryPoint {
     	return ResponseBuilderUtil.createResponse(Status.CREATED, responseDTO);
     }
 	
+	@Path("/{subjectCode}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getSubjectWith() {
+	public Response getClassWith(@PathParam("subjectCode") String subjectCode) {
 		
-		SubjectDTO subjectDTO = null;
+		SubjectDTO createdDTO = null;
+		
 		try {
-			subjectDTO = this.service.getSubjectBy("SUBENG0");
-		}catch(Exception ex) {
-			return ExceptionMapper.Response(ex);
-		}
-		return ResponseBuilderUtil.createResponse(Status.FOUND, subjectDTO);
+	    	createdDTO =(SubjectDTO)this.service.getEntity(new RequestDTO(subjectCode,SubjectDTO.class));
+	    }catch(Exception ex){
+	    	return ExceptionMapper.Response(ex);
+	    }
+		return ResponseBuilderUtil.createResponse(Status.FOUND, createdDTO);
 	}
 	
 }
