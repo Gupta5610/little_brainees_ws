@@ -3,11 +3,13 @@
 package com.little_brainees.app.ws.request;
 
 
+import java.util.List;
+
 import javax.xml.bind.annotation.*;;
 
 
 @XmlRootElement 
-public class CreateTeacherRequest {
+public class TeacherRequestObject {
 	
 	String teacherID;
 	String teacherName;
@@ -17,8 +19,20 @@ public class CreateTeacherRequest {
 	String teacherBio;
 	String teacherAdharNumber;
 	String teacherClass;
-	
-	
+	List<ChildRequestObject> children;
+	/**
+	 * @return the children
+	 */
+	public List<ChildRequestObject> getChildren() {
+		return children;
+	}
+	/**
+	 * @param children the children to set
+	 */
+	public void setChildren(List<ChildRequestObject> children) {
+		this.children = children;
+	}
+		
 	public String getTeacherID() {
 		return teacherID;
 	}

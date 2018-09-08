@@ -1,27 +1,48 @@
 package com.little_brainees.app.ws.io.entity;
 
 import java.io.Serializable;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 
 
 @Entity(name="Teacher")
 public class TeacherEntity implements Serializable {
 	
-	private static final long serialVersionUID = 3L;
-
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 5661931952223346609L;
+	@Id
 	String teacherID;
 	String teacherName;
 	String teacherAddress;
-	
-	@Id
 	String teacherEmail;
 	String teacherPhoneNumber;
 	String teacherBio;
 	String teacherAdharNumber;
 	String teacherClass;
+	
+	
+	@OneToMany(mappedBy = "teacher")
+	List<ChildEntity> children;
+	
+	
+	/**
+	 * @return the children
+	 */
+	public List<ChildEntity> getChildren() {
+		return children;
+	}
+	/**
+	 * @param children the children to set
+	 */
+	public void setChildren(List<ChildEntity> children) {
+		this.children = children;
+	}
 	
 	public String getTeacherID() {
 		return teacherID;

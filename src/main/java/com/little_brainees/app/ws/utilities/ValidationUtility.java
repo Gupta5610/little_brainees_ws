@@ -86,8 +86,31 @@ public final class ValidationUtility {
 		   topicDTO.getTopicCode() == null || topicDTO.getTopicCode().isEmpty() ||
 		   topicDTO.getTopicName() == null || topicDTO.getTopicName().isEmpty()) {
 			LBLogger.logMessage("Object Not valid");
-			throw new MissingRequiredFieldException(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessage());
+			throw missingRequiredFieldException;
 		}
 	}
 	
+	private static void validateRequiredFeildsInParentDTO(ParentDTO parentDTO) {
+		LBLogger.logMessage("validateRequiredFeildsInParentDTO - ",parentDTO.toString());
+		
+		if(parentDTO.getParentID() == null || parentDTO.getParentID().isEmpty() ||
+		   parentDTO.getParentAddress() == null || parentDTO.getParentAddress().isEmpty() ||
+		   parentDTO.getParentEmail() == null || parentDTO.getParentEmail().isEmpty() ||
+		   parentDTO.getParentName() == null || parentDTO.getParentName().isEmpty() ||
+		   parentDTO.getParentNumber() == null || parentDTO.getParentNumber().isEmpty()) {
+			throw missingRequiredFieldException;
+		}
+	}
+	
+    private static void validateRequiredFeildsInChildDTO(ChildDTO childDTO) {
+    	LBLogger.logMessage("validateRequiredFeildsInChildDTO - "+childDTO.toString());
+    	
+    	if(childDTO.getChildId() == null || childDTO.getChildId().isEmpty() ||
+    	   childDTO.getChildName() == null || childDTO.getChildName().isEmpty() ||
+    	   childDTO.getChildSchool() == null || childDTO.getChildSchool().isEmpty() ||
+    	   childDTO.getChildClassCode() == null || childDTO.getChildClassCode().isEmpty() ||
+    	   childDTO.getParentId() == null || childDTO.getTeacherId().isEmpty()) {
+    		throw missingRequiredFieldException;
+    	}
+    }	
 }

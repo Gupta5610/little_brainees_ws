@@ -7,7 +7,8 @@ import javax.persistence.Column;
 import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement
+
+
 public class SubjectDTO  implements Serializable , BaseDTO {
 	
 	

@@ -6,6 +6,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -15,7 +16,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.little_brainees.app.ws.DTO.BaseDTO;
 import com.little_brainees.app.ws.DTO.ClassDTO;
+import com.little_brainees.app.ws.DTO.SubjectDTO;
 import com.little_brainees.app.ws.exceptions.ExceptionMapper;
 import com.little_brainees.app.ws.request.CreateClassRequest;
 import com.little_brainees.app.ws.response.CreateClassResponse;
@@ -27,7 +30,7 @@ import com.little_brainees.app.ws.utilities.ResponseBuilderUtil;
 
 
 
-@Path("/classes")
+@Path("/class")
 public class ClassEntryPoint {
 	
 	
@@ -53,12 +56,16 @@ public class ClassEntryPoint {
 	@GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getClasses() {
-		System.out.println("getClasses function called");
-		ArrayList<String> returnObject = new ArrayList<String>();
-		returnObject.add("first");
-		returnObject.add("second");
-		System.out.println("getCLass");
-		return ResponseBuilderUtil.createResponse(Status.FOUND, returnObject);
+		List<ClassDTO> resultList = new ArrayList<ClassDTO>();
+		try {
+			for(BaseDTO dto : this.service.getAllEntity(new RequestDTO("as",ClassDTO.class))) {
+				resultList.add((ClassDTO)dto);
+			}
+		}catch(Exception ex) {
+			return ExceptionMapper.Response(ex);
+		}
+		
+		return ResponseBuilderUtil.createResponse(Status.FOUND, resultList);
     } 
 	
 	
@@ -75,5 +82,12 @@ public class ClassEntryPoint {
 	    	return ExceptionMapper.Response(ex);
 	    }
 		return ResponseBuilderUtil.createResponse(Status.FOUND, createdDTO);
+	}
+	
+	
+	@Path("/{classCode}/subject")
+	@Produces(MediaType.APPLICATION_JSON)
+	public SubjectEntryPoint getSubjectResource(){
+		return new SubjectEntryPoint();
 	}
 }

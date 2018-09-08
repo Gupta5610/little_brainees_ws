@@ -1,12 +1,12 @@
 package com.little_brainees.app.ws.DTO;
 
 import java.io.Serializable;
-
+import java.util.List;
 
 import javax.xml.bind.annotation.*;;
 
 
-@XmlRootElement 
+
 public class TeacherDTO implements Serializable,BaseDTO{
 	
 	private static final long  serialVersionUID = 1L;
@@ -18,7 +18,25 @@ public class TeacherDTO implements Serializable,BaseDTO{
 	String teacherBio;
 	String teacherAdharNumber;
 	String teacherClass;
+	List<ChildDTO> children;
+
 	
+	/**
+	 * @return the children
+	 */
+	public List<ChildDTO> getChildren() {
+		return children;
+	}
+
+
+	/**
+	 * @param children the children to set
+	 */
+	public void setChildren(List<ChildDTO> children) {
+		this.children = children;
+	}
+
+
 	public TeacherDTO(){
 		
 	}

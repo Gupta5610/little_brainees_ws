@@ -3,6 +3,8 @@
  */
 package com.little_brainees.app.ws.services;
 
+import java.util.List;
+
 import com.little_brainees.app.ws.DAO.*;
 import com.little_brainees.app.ws.DTO.BaseDTO;
 import com.little_brainees.app.ws.shared.RequestDTO;
@@ -34,6 +36,11 @@ public class DatabaseService implements IDatabaseService {
 		ValidationUtility.validateRequiredFieldsInDTO(baseDTO);
 		LBLogger.logMessage("Create Entity - Valid DTO object");
 		return this.createEntityInDatabase(baseDTO);
+	}
+	
+	@Override
+	public List<BaseDTO> getAllEntity(RequestDTO requestDTO) {
+		return this.getAllEntityFromDatabase(requestDTO);
 	}
 	
 	
@@ -72,5 +79,20 @@ public class DatabaseService implements IDatabaseService {
 		
 		return resultDTO;
 	}
+	
+	private List<BaseDTO> getAllEntityFromDatabase(RequestDTO requestDTO){
+		List<BaseDTO> resultList = null;
+		try {
+			this.database.openConnection();
+			resultList = this.database.getAllEntity(requestDTO);
+		}catch(Exception ex) {
+			throw new RuntimeException(ex);
+		}finally {
+			this.database.closeConnection();
+		}
+		return resultList;
+	}
+
+	
 
 }

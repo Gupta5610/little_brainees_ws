@@ -23,10 +23,9 @@ public class DAO implements IDAO {
 		return this.mySqlDatabase.saveEntity(requestDTO);
 	}
 
-	@Override
+	
 	public List<BaseDTO> getAllEntity(RequestDTO requestDTO) {
-		
-		return null;
+		return this.mySqlDatabase.getAllEntity(requestDTO);
 	}
 
 	@Override

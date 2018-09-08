@@ -2,13 +2,10 @@ package com.little_brainees.app.ws.io.entity;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-
-import org.hibernate.annotations.*;
 import javax.persistence.OneToMany;
 
 
@@ -25,9 +22,21 @@ public class ClassEntity implements Serializable{
 	String className;
 	
 	@OneToMany(mappedBy="classEntity")
-	Collection<SubjectEntity> subjects = new ArrayList<SubjectEntity>();
+	List<SubjectEntity> subjects = new ArrayList<SubjectEntity>();
 	
 	
+	/**
+	 * @return the subjects
+	 */
+	public List<SubjectEntity> getSubjects() {
+		return subjects;
+	}
+	/**
+	 * @param subjects the subjects to set
+	 */
+	public void setSubjects(List<SubjectEntity> subjects) {
+		this.subjects = subjects;
+	}
 	public String getClassCode() {
 		return classCode;
 	}
@@ -50,3 +59,6 @@ public class ClassEntity implements Serializable{
 		return "Class [ ClassCode :"+ this.classCode+", ClassName : "+this.className+"]";
 	}
 }
+
+
+

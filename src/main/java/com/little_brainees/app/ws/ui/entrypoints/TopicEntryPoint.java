@@ -3,6 +3,9 @@
  */
 package com.little_brainees.app.ws.ui.entrypoints;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -13,13 +16,16 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.little_brainees.app.ws.DTO.BaseDTO;
 import com.little_brainees.app.ws.DTO.ClassDTO;
+import com.little_brainees.app.ws.DTO.SubjectDTO;
 import com.little_brainees.app.ws.DTO.TopicDTO;
 import com.little_brainees.app.ws.exceptions.ExceptionMapper;
 import com.little_brainees.app.ws.request.CreateTopicRequest;
 import com.little_brainees.app.ws.services.IDatabaseService;
 import com.little_brainees.app.ws.shared.RequestDTO;
 import com.little_brainees.app.ws.services.DatabaseService;
+import com.little_brainees.app.ws.utilities.LBLogger;
 import com.little_brainees.app.ws.utilities.ModelMapperUtil;
 import com.little_brainees.app.ws.utilities.ResponseBuilderUtil;
 
@@ -55,7 +61,7 @@ public class TopicEntryPoint {
 	@Path("/{topicCode}")
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response getClassWith(@PathParam("topicCode") String topicCode) {
+	public Response getTopicWith(@PathParam("topicCode") String topicCode) {
 		
 		TopicDTO createdDTO = null;
 		
@@ -65,6 +71,21 @@ public class TopicEntryPoint {
 	    	return ExceptionMapper.Response(ex);
 	    }
 		return ResponseBuilderUtil.createResponse(Status.FOUND, createdDTO);
+	}
+	
+	
+	@GET
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response getAllTopic(@PathParam("moduleCode") String moduldeCode) {
+		List<TopicDTO> resultList = new ArrayList<TopicDTO>();
+		try {
+		     for(BaseDTO dto : this.service.getAllEntity(new RequestDTO(moduldeCode,TopicDTO.class))) {
+		    	 resultList.add((TopicDTO)dto);
+		     }
+		}catch(Exception ex) {
+			return ExceptionMapper.Response(ex);
+		}
+		return ResponseBuilderUtil.createResponse(Status.FOUND, resultList);
 	}
 
 }

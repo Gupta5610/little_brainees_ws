@@ -15,11 +15,11 @@ import com.little_brainees.app.ws.shared.RequestDTO;
 public interface IDAO {
 	
 	public BaseDTO createEntity(BaseDTO requestDTO);
-	public List<BaseDTO> getAllEntity(RequestDTO requestDTO);
 	public BaseDTO getEntity(RequestDTO requestDTO);
 	public BaseDTO updateEntity(BaseDTO baseDTO);
 	public void openConnection();
 	public void closeConnection();
+	public List<BaseDTO> getAllEntity(RequestDTO requestDTO);
 	
      
 }

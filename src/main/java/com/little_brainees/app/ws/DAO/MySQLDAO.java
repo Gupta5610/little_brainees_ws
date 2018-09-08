@@ -1,5 +1,6 @@
 package com.little_brainees.app.ws.DAO;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -14,11 +15,14 @@ import com.little_brainees.app.ws.DTO.*;
 import com.little_brainees.app.ws.exceptions.DuplicateRecordFoundException;
 import com.little_brainees.app.ws.exceptions.ErrorMessages;
 import com.little_brainees.app.ws.exceptions.RecordNotFoundException;
+import com.little_brainees.app.ws.io.entity.ChildEntity;
 import com.little_brainees.app.ws.io.entity.ClassEntity;
 import com.little_brainees.app.ws.io.entity.ModuleEntity;
+import com.little_brainees.app.ws.io.entity.ParentEntity;
 import com.little_brainees.app.ws.io.entity.SubjectEntity;
 import com.little_brainees.app.ws.io.entity.TeacherEntity;
 import com.little_brainees.app.ws.io.entity.TopicEntity;
+import com.little_brainees.app.ws.response.ChildResponseDTO;
 import com.little_brainees.app.ws.shared.RequestDTO;
 import com.little_brainees.app.ws.utilities.HibernateUtils;
 import com.little_brainees.app.ws.utilities.LBLogger;
@@ -63,6 +67,10 @@ public class MySQLDAO implements IMySQLDAO {
     		resultDTO = this.getModuleByModuleCode(requestParameter);
     	else if(type == TopicDTO.class)
     		resultDTO = this.getTopicByTopicCode(requestParameter);
+    	else if(type == ParentDTO.class)
+    		resultDTO = this.getParentById(requestParameter);
+    	else if(type == ChildDTO.class)
+    		resultDTO = this.getChildById(requestParameter);
     	
     	return resultDTO;
     }
@@ -82,10 +90,34 @@ public class MySQLDAO implements IMySQLDAO {
     		resultDTO = this.saveModule((ModuleDTO)requestDTO);
     	}else if (requestDTO instanceof TopicDTO) {
     		resultDTO = this.saveTopic((TopicDTO)requestDTO);
+    	}else if (requestDTO instanceof ChildDTO) {
+    		resultDTO = this.saveChild((ChildDTO)requestDTO);
+    	}else if (requestDTO instanceof ParentDTO) {
+    		resultDTO = this.saveParent((ParentDTO)requestDTO);
     	}
     	return resultDTO;
     }
 		
+	
+	@Override
+	public List<BaseDTO> getAllEntity(RequestDTO requestDTO){
+		List<BaseDTO> resultList = null;
+		
+		Class type = requestDTO.getType();
+    	String requestParameter = requestDTO.getRequestString();
+		
+		if(type == ClassDTO.class) {
+		   resultList = this.getAllClass();
+		}else if(type == SubjectDTO.class) {
+			resultList = this.getAllSubject(requestParameter);
+		}else if(type == ModuleDTO.class) {
+			resultList = this.getAllModule(requestParameter);
+		}else if(type == TopicDTO.class) {
+			resultList = this.getAllTopic(requestParameter);
+		}
+		
+		return resultList;
+	}
 	
 	
 	// =============================================================================================
@@ -108,12 +140,12 @@ public class MySQLDAO implements IMySQLDAO {
 	}
 	
 	
-	private TeacherEntity getTeacher(String email){
+	private TeacherEntity getTeacher(String teacherID){
 		CriteriaBuilder cb = session.getCriteriaBuilder();
 		CriteriaQuery<TeacherEntity> criteria = cb.createQuery(TeacherEntity.class);
 		Root<TeacherEntity> profileRoot = criteria.from(TeacherEntity.class);
 		criteria.select(profileRoot);
-		criteria.where(cb.equal(profileRoot.get("teacherEmail"), email));
+		criteria.where(cb.equal(profileRoot.get("teacherID"), teacherID));
 		Query<TeacherEntity> query = session.createQuery(criteria);
 		List<TeacherEntity> resultList = query.getResultList();
 		LBLogger.logMessage("ResultList Size : " + resultList.size());
@@ -163,7 +195,6 @@ public class MySQLDAO implements IMySQLDAO {
 	
 	private ClassEntity getClassBy(String classCode){
 		
-		System.out.println("Is session open : "+session.isOpen());
 		CriteriaBuilder cb = session.getCriteriaBuilder();
 		CriteriaQuery<ClassEntity> criteria = cb.createQuery(ClassEntity.class);
 		Root<ClassEntity> profileRoot = criteria.from(ClassEntity.class);
@@ -194,6 +225,36 @@ public class MySQLDAO implements IMySQLDAO {
 			ClassDTO createdDTO = (ClassDTO)ModelMapperUtil.map(classEntity, ClassDTO.class);
 			return createdDTO;
 		}
+	
+	
+	private List<BaseDTO> getAllClass(){
+		
+		
+//		List<ClassEntity> entityList = null;
+//		try {
+//		 entityList = session.createCriteria(ClassEntity.class).list();
+//		 resultList = new ArrayList<BaseDTO>();
+//		}catch(Exception ex) {
+//			throw new RuntimeException(ex);
+//		}
+		
+		List<BaseDTO> resultList = new ArrayList<BaseDTO>();
+	
+		CriteriaBuilder cb = session.getCriteriaBuilder();
+		CriteriaQuery<ClassEntity> criteria = cb.createQuery(ClassEntity.class);
+		Root<ClassEntity> profileRoot = criteria.from(ClassEntity.class);
+		criteria.select(profileRoot);
+		Query<ClassEntity> query = session.createQuery(criteria);
+		List<ClassEntity> entityList = query.getResultList();
+		LBLogger.logMessage("ResultList Size : " + entityList.size());
+		ClassDTO dto;
+		for(ClassEntity entity : entityList) {
+			LBLogger.logMessage(entity.toString());
+			dto = (ClassDTO)ModelMapperUtil.map(entity, ClassDTO.class);
+			resultList.add(dto);
+		}
+		return resultList;
+	}
 	
 	// =============================================================================================
 
@@ -260,6 +321,27 @@ public class MySQLDAO implements IMySQLDAO {
 		return (SubjectDTO)ModelMapperUtil.map(subjectEntity, SubjectDTO.class);
 	}
 	
+	private List<BaseDTO> getAllSubject(String classCode){
+		
+		List<BaseDTO> resultList = null;
+		List<SubjectEntity> entityList = null;
+		try {
+			
+			entityList = this.getClassBy(classCode).getSubjects();
+		    resultList = new ArrayList<BaseDTO>();
+		}catch(Exception ex) {
+			throw new RuntimeException(ex);
+		}
+		
+		SubjectDTO dto;
+		for(SubjectEntity entity : entityList) {
+			LBLogger.logMessage(entity.toString());
+			dto = (SubjectDTO)ModelMapperUtil.map(entity, SubjectDTO.class);
+			resultList.add(dto);
+		}
+		return resultList;
+	}
+	
 	
 	// =============================================================================================
 	
@@ -322,6 +404,27 @@ public class MySQLDAO implements IMySQLDAO {
 	    }
 		
 		return (ModuleDTO)ModelMapperUtil.map(moduleEntity, ModuleDTO.class);
+	}
+	
+    private List<BaseDTO> getAllModule(String subjectCode){
+		
+		List<BaseDTO> resultList = null;
+		List<ModuleEntity> entityList = null;
+		try {
+			
+			entityList = this.getSubject(subjectCode).getModules();
+		    resultList = new ArrayList<BaseDTO>();
+		}catch(Exception ex) {
+			throw new RuntimeException(ex);
+		}
+		
+		ModuleDTO dto;
+		for(ModuleEntity entity : entityList) {
+			LBLogger.logMessage(entity.toString());
+			dto = (ModuleDTO)ModelMapperUtil.map(entity, ModuleDTO.class);
+			resultList.add(dto);
+		}
+		return resultList;
 	}
 	
 	// =============================================================================================
@@ -397,9 +500,179 @@ public class MySQLDAO implements IMySQLDAO {
 		return (TopicDTO)ModelMapperUtil.map(moduleEntity, TopicDTO.class);
 	}
 	
+	 private List<BaseDTO> getAllTopic(String moduleCode){
+			
+			List<BaseDTO> resultList = null;
+			List<TopicEntity> entityList = null;
+			try {
+				
+				entityList = this.getModule(moduleCode).getTopics();
+			    resultList = new ArrayList<BaseDTO>();
+			}catch(Exception ex) {
+				throw new RuntimeException(ex);
+			}
+			
+			TopicDTO dto;
+			for(TopicEntity entity : entityList) {
+				LBLogger.logMessage(entity.toString());
+				dto = (TopicDTO)ModelMapperUtil.map(entity, TopicDTO.class);
+				resultList.add(dto);
+			}
+			return resultList;
+		}
+
+	
 	// =============================================================================================
+	 
+	 private ParentDTO getParentById(String parentId) {
+		 ParentDTO parentDTO = null;
+		 ParentEntity parentEntity = getParent(parentId);
+		 try {
+			 parentDTO = (ParentDTO)ModelMapperUtil.map(parentEntity, ParentDTO.class);
+		 }catch(Exception ex) {
+			 throw new RuntimeException(ex);
+		 }
+		 LBLogger.logMessage("getParentById", "Parent Found", parentDTO.toString());
+		 return parentDTO;
+	 }
+	 
+	 private ParentEntity getParent(String parentID){
+			
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<ParentEntity> criteria = cb.createQuery(ParentEntity.class);
+			Root<ParentEntity> profileRoot = criteria.from(ParentEntity.class);
+			criteria.select(profileRoot);
+			criteria.where(cb.equal(profileRoot.get("parentID"),parentID));
+			Query<ParentEntity> query = session.createQuery(criteria);
+			List<ParentEntity> resultList = query.getResultList();
+			LBLogger.logMessage("ResultList Size : " + resultList.size());
+			return  (resultList == null || resultList.size() == 0)? null : resultList.get(0);
+		}
+	 
+	 
+	 private ParentEntity getParentByEmailandPhoneNumber(ParentDTO parentDTO) {
+		 
+		 CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<ParentEntity> criteria = cb.createQuery(ParentEntity.class);
+			Root<ParentEntity> profileRoot = criteria.from(ParentEntity.class);
+			criteria.select(profileRoot);
+			criteria.where(cb.equal(profileRoot.get("parentEmail"),parentDTO.getParentEmail()));
+			criteria.where(cb.equal(profileRoot.get("parentNumber"),parentDTO.getParentNumber()));
+		   
+			Query<ParentEntity> query = session.createQuery(criteria);
+			List<ParentEntity> resultList = query.getResultList();
+			LBLogger.logMessage("ResultList Size : " + resultList.size());
+			return  (resultList == null || resultList.size() == 0)? null : resultList.get(0);
+	 }
+	 
+	 
+	 private ParentDTO saveParent(ParentDTO parentDTO) {
+		 
+		 if(this.getParentByEmailandPhoneNumber(parentDTO)!=null){
+			 throw new DuplicateRecordFoundException(ErrorMessages.DUPLICATE_RECORD_FOUND.getErrorMessage());
+		 }
+		 
+		 ParentEntity parentEntity = (ParentEntity)ModelMapperUtil.map(parentDTO, ParentEntity.class);
+		 
+		 try {
+			 session.beginTransaction();
+			 session.save(parentEntity);
+			 session.getTransaction().commit();
+		 }catch(Exception ex) {
+			 throw new RuntimeException(ex);
+		 }
+		
+		 return parentDTO;
+	 }
+	 
+	// =============================================================================================
+	 
+	 
+	 private ChildResponseDTO getChildById(String childID) {
+		 ChildResponseDTO childDTO = null;
+		 ChildEntity childEntity = getChild(childID);
+		 try {
+			 childDTO = (ChildResponseDTO)ModelMapperUtil.map(childEntity, ChildResponseDTO.class);
+		 }catch(Exception ex) {
+			 throw new RuntimeException(ex);
+		 }
+		 LBLogger.logMessage("getChildById", "Child Found", childDTO.toString());
+		 return childDTO;
+	 }
+	 
+	 
+	 
+	 
+	 private ChildEntity getChild(String childID){
+			CriteriaBuilder cb = session.getCriteriaBuilder();
+			CriteriaQuery<ChildEntity> criteria = cb.createQuery(ChildEntity.class);
+			Root<ChildEntity> profileRoot = criteria.from(ChildEntity.class);
+			criteria.select(profileRoot);
+			criteria.where(cb.equal(profileRoot.get("childId"),childID));
+			Query<ChildEntity> query = session.createQuery(criteria);
+			List<ChildEntity> resultList = query.getResultList();
+			LBLogger.logMessage("ResultList Size : " + resultList.size());
+			return  (resultList == null || resultList.size() == 0)? null : resultList.get(0);
+		}
+	 
+	 
+     private ChildResponseDTO saveChild(ChildDTO childDTO) {
+		 
+		 if(this.getChild(childDTO.getChildId())!=null){
+			 throw new DuplicateRecordFoundException(ErrorMessages.DUPLICATE_RECORD_FOUND.getErrorMessage());
+		 }
+		 
+		 LBLogger.logMessage(childDTO.getParentId());
+		 TeacherEntity teacher = this.getTeacher(childDTO.getTeacherId());
+		 if(teacher == null) {
+			 throw new RecordNotFoundException(ErrorMessages.RECORD_NOT_FOUND.getErrorMessage());
+		 }
+		 
+		 
+		 LBLogger.logMessage(childDTO.getParentId());
+		 ParentEntity parent = this.getParent(childDTO.getParentId());
+		 if(parent == null) {
+			 throw new RecordNotFoundException(ErrorMessages.RECORD_NOT_FOUND.getErrorMessage());
+		 }
+		 
+		 ClassEntity childClass = this.getClassBy(childDTO.getChildClassCode());
+		 if(childClass == null) {
+			 throw new RecordNotFoundException(ErrorMessages.RECORD_NOT_FOUND.getErrorMessage());
+		 }
+		 
+		 ChildEntity childEntity = (ChildEntity)ModelMapperUtil.map(childDTO, ChildEntity.class);
+		 
+		 
+		 teacher.getChildren().add(childEntity);
+		 parent.getChildren().add(childEntity);
+		 
+     	 childEntity.setTeacher(teacher);
+		 childEntity.setParent(parent);
+	     childEntity.setChildClass(childClass);
+		 
+		 try {
+			 session.beginTransaction();
+			 session.save(childEntity);
+			 session.getTransaction().commit();
+		 }catch(Exception ex) {
+			 throw new RuntimeException(ex);
+		 }
+		 
+		 
 	
-	
+		 ChildResponseDTO responseObject = (ChildResponseDTO)ModelMapperUtil.map(childEntity, ChildResponseDTO.class);
+		 
+		 return responseObject;
+	 }
+	 
+	 
+	 
+	 
+	 
+	 
+	// =============================================================================================
+	 
+	 
 		
 	}
 
