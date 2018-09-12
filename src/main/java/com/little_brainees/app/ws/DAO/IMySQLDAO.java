@@ -10,6 +10,7 @@ public interface IMySQLDAO {
 	public BaseDTO saveEntity(BaseDTO requestDTO);
 	public BaseDTO getEntity(RequestDTO requestDTO);
 	public List<BaseDTO>getAllEntity(RequestDTO requestDTO);
+	public BaseDTO updateEntity(BaseDTO requestDTO);
 	// =============================================================================================
 	public void openConnection();
 	public void closeConnection();

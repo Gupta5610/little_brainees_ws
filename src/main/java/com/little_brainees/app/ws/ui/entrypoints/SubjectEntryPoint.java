@@ -6,6 +6,7 @@ import java.util.List;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -43,6 +44,21 @@ public class SubjectEntryPoint {
 		SubjectDTO responseDTO ;
 		try {
 			responseDTO = (SubjectDTO)this.service.createEntity(requestDTO);
+		}catch(Exception ex){
+			return ExceptionMapper.Response(ex);
+		}
+		
+    	return ResponseBuilderUtil.createResponse(Status.CREATED, responseDTO);
+    }
+	
+	@PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+    public Response updateSubject(CreateSubjectRequest requestObject) {
+		SubjectDTO requestDTO = (SubjectDTO)ModelMapperUtil.map(requestObject, SubjectDTO.class);
+		SubjectDTO responseDTO ;
+		try {
+			responseDTO = (SubjectDTO)this.service.updateEntity(requestDTO);
 		}catch(Exception ex){
 			return ExceptionMapper.Response(ex);
 		}

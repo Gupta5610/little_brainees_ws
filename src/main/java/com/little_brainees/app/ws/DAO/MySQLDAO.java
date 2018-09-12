@@ -58,7 +58,7 @@ public class MySQLDAO implements IMySQLDAO {
     	LBLogger.logMessage("getEnity()", "requestDTO value : ", type + " , " + requestParameter);
     	
     	if (type == TeacherDTO.class)
-    	   resultDTO = this.getTeacherByEmail(requestParameter);
+    	   resultDTO = this.getTeacherByID(requestParameter);
     	else if(type == ClassDTO.class)
     		resultDTO = this.getClassByClassCode(requestParameter);
     	else if(type == SubjectDTO.class)
@@ -120,14 +120,38 @@ public class MySQLDAO implements IMySQLDAO {
 	}
 	
 	
+	@Override
+	public BaseDTO updateEntity(BaseDTO requestDTO) {
+		BaseDTO resultDTO = null;
+		
+		if(requestDTO instanceof TeacherDTO) {
+			resultDTO = this.updateTeacher((TeacherDTO) requestDTO);
+		}else if (requestDTO instanceof ClassDTO) {
+			resultDTO = this.updateClass((ClassDTO)requestDTO);
+		}else if (requestDTO instanceof SubjectDTO) {
+			resultDTO = this.updateSubject((SubjectDTO)requestDTO);
+		}else if (requestDTO instanceof ModuleDTO) {
+			resultDTO = this.updateModule((ModuleDTO)requestDTO);
+		}else if (requestDTO instanceof TopicDTO) {
+			resultDTO = this.updateTopic((TopicDTO)requestDTO);
+		}else if (requestDTO instanceof ParentDTO) {
+			resultDTO = this.updateParent((ParentDTO)requestDTO);
+		}else if (requestDTO instanceof ChildDTO) {
+			resultDTO = this.updateChild((ChildDTO)requestDTO);
+		}
+		
+		return resultDTO;
+	}
+	
+	
 	// =============================================================================================
 		
 	
 	
-    private TeacherDTO getTeacherByEmail(String email) {
+    private TeacherDTO getTeacherByID(String teacherID) {
 		
 		TeacherDTO teacherDTO = null;
-		TeacherEntity  teacherEntity = this.getTeacher(email); 
+		TeacherEntity  teacherEntity = this.getTeacher(teacherID); 
 		if( teacherEntity != null ) {		
 			try {
 			teacherDTO = (TeacherDTO)ModelMapperUtil.map(teacherEntity, TeacherDTO.class);
@@ -149,7 +173,6 @@ public class MySQLDAO implements IMySQLDAO {
 		Query<TeacherEntity> query = session.createQuery(criteria);
 		List<TeacherEntity> resultList = query.getResultList();
 		LBLogger.logMessage("ResultList Size : " + resultList.size());
-		
 		return  (resultList == null || resultList.size() == 0)? null : resultList.get(0);
 	}
 
@@ -158,16 +181,67 @@ public class MySQLDAO implements IMySQLDAO {
 	
 	private TeacherDTO saveTeacher(TeacherDTO teacherDTO) {
 			
-		if (this.getTeacherByEmail(teacherDTO.getTeacherEmail()) != null) 
+		if (this.getTeacherByID(teacherDTO.getTeacherEmail()) != null) 
 			throw new DuplicateRecordFoundException(ErrorMessages.DUPLICATE_RECORD_FOUND.getErrorMessage());
 		
 		
+		LBLogger.logMessage("is TeacherActive : " + teacherDTO.getIsActive());
+		
 		TeacherEntity teacherEntity = (new ObjectMapper()).convertValue(teacherDTO, TeacherEntity.class);
+		
 		try {
 		session.beginTransaction();
 		session.save(teacherEntity);
 		session.getTransaction().commit();
 		}catch(Exception ex) {
+			throw new RuntimeException(ex.getLocalizedMessage());
+		}
+		TeacherDTO resultDTO = (new ObjectMapper()).convertValue(teacherEntity, TeacherDTO.class);
+		return  resultDTO;
+	}
+	
+	private TeacherDTO updateTeacher(TeacherDTO teacherDTO) {
+		
+		TeacherEntity teacherEntity = getTeacher(teacherDTO.getTeacherID());
+		
+		if(teacherDTO.getIsActive() != null ) {
+			teacherEntity.setIsActive(teacherDTO.getIsActive());
+		}
+		
+		if(teacherDTO.getTeacherAddress() != null && !teacherDTO.getTeacherAddress().isEmpty()) {
+			teacherEntity.setTeacherAddress(teacherDTO.getTeacherAddress());
+		}
+		
+		if(teacherDTO.getTeacherAdharNumber() != null && !teacherDTO.getTeacherAdharNumber().isEmpty()) {
+			teacherEntity.setTeacherAdharNumber(teacherDTO.getTeacherAdharNumber());
+		}
+		
+		if(teacherDTO.getTeacherBio() != null && !teacherDTO.getTeacherBio().isEmpty()) {
+			teacherEntity.setTeacherBio(teacherDTO.getTeacherBio());
+		}
+		
+		if(teacherDTO.getTeacherClass() !=null && !teacherDTO.getTeacherClass().isEmpty()) {
+			teacherEntity.setTeacherClass(teacherDTO.getTeacherClass());
+		}
+		
+		if(teacherDTO.getTeacherEmail() !=null && !teacherDTO.getTeacherEmail().isEmpty()) {
+			teacherEntity.setTeacherEmail(teacherDTO.getTeacherEmail());
+		}
+		
+		if(teacherDTO.getTeacherName() != null && !teacherDTO.getTeacherName().isEmpty()) {
+			teacherEntity.setTeacherName(teacherDTO.getTeacherName());
+		}
+		
+		if(teacherDTO.getTeacherPhoneNumber() != null && !teacherDTO.getTeacherPhoneNumber().isEmpty()) {
+			teacherEntity.setTeacherPhoneNumber(teacherDTO.getTeacherPhoneNumber());
+		}
+		
+		try {
+			session.beginTransaction();
+			session.update(teacherEntity);
+			session.getTransaction().commit();
+		}
+		catch(Exception ex) {
 			throw new RuntimeException(ex.getLocalizedMessage());
 		}
 		TeacherDTO resultDTO = (new ObjectMapper()).convertValue(teacherEntity, TeacherDTO.class);
@@ -256,6 +330,28 @@ public class MySQLDAO implements IMySQLDAO {
 		return resultList;
 	}
 	
+	private ClassDTO updateClass(ClassDTO classDTO) {
+		
+		ClassEntity classEntity = this.getClassBy(classDTO.getClassCode());
+		
+		if(classDTO.getClassName() != null && !classDTO.getClassName().isEmpty()){
+			classEntity.setClassName(classDTO.getClassName());
+		}
+		
+		try {
+			this.session.beginTransaction();
+			this.session.update(classEntity);
+			this.session.getTransaction().commit();
+		}
+		catch(Exception ex) {
+			throw new RuntimeException(ex.getLocalizedMessage());
+		}
+		
+		ClassDTO resultDTO = (new ObjectMapper()).convertValue(classEntity, ClassDTO.class);
+		return  resultDTO;
+	
+	}
+	
 	// =============================================================================================
 
 	
@@ -342,6 +438,29 @@ public class MySQLDAO implements IMySQLDAO {
 		return resultList;
 	}
 	
+	private BaseDTO updateSubject(SubjectDTO subjectDTO){
+		
+		SubjectEntity subjectEntity = this.getSubject(subjectDTO.getSubjectCode());
+		
+		if(subjectDTO.getClassCode() != null && !subjectDTO.getClassCode().isEmpty()) {
+			subjectEntity.setClassEntity(this.getClassBy(subjectDTO.getClassCode()));
+		}
+		
+		if(subjectDTO.getSubjectName() != null && !subjectDTO.getSubjectName().isEmpty()) {
+			subjectEntity.setSubjectName(subjectDTO.getSubjectName());
+		}
+		
+		try {
+			this.session.beginTransaction();
+			this.session.update(subjectEntity);
+			this.session.getTransaction().commit();
+		}catch(Exception ex) {
+			throw new RuntimeException(ex);
+		}
+		
+		return (SubjectDTO)ModelMapperUtil.map(subjectEntity, SubjectDTO.class);
+	}
+	
 	
 	// =============================================================================================
 	
@@ -426,6 +545,31 @@ public class MySQLDAO implements IMySQLDAO {
 		}
 		return resultList;
 	}
+    
+    
+    private ModuleDTO updateModule(ModuleDTO moduleDTO) {
+    	
+    	ModuleEntity moduleEntity = this.getModule(moduleDTO.getModuleCode());
+    	
+    	
+    	if(moduleDTO.getModuleName()!=null && !moduleDTO.getModuleName().isEmpty()) {
+    		moduleEntity.setModuleName(moduleDTO.getModuleName());
+    	}
+    	
+    	if(moduleDTO.getSubjectCode() != null && !moduleDTO.getSubjectCode().isEmpty()) {
+    		moduleEntity.setSubject(this.getSubject(moduleDTO.getSubjectCode()));
+    	}
+    	
+    	try {
+    		this.session.beginTransaction();
+    		this.session.update(moduleEntity);
+    		this.session.getTransaction().commit();
+    	}catch(Exception ex) {
+    		throw ex;
+    	}
+    	
+        return (ModuleDTO)ModelMapperUtil.map(moduleEntity, ModuleDTO.class);
+    }
 	
 	// =============================================================================================
 	
@@ -497,7 +641,7 @@ public class MySQLDAO implements IMySQLDAO {
 	    	throw new RuntimeException(ex.getLocalizedMessage());
 	    }
 	    
-		return (TopicDTO)ModelMapperUtil.map(moduleEntity, TopicDTO.class);
+		return (TopicDTO)ModelMapperUtil.map(topicEntity, TopicDTO.class);
 	}
 	
 	 private List<BaseDTO> getAllTopic(String moduleCode){
@@ -520,6 +664,22 @@ public class MySQLDAO implements IMySQLDAO {
 			}
 			return resultList;
 		}
+	 
+	 
+	 private TopicDTO updateTopic(TopicDTO topicDTO) {
+		 
+		 TopicEntity topicEntity = this.getTopic(topicDTO.getTopicCode());
+		 
+		 try {
+		    	session.beginTransaction();
+		    	session.update(topicEntity);
+		    	session.getTransaction().commit();
+		    }catch(Exception ex) {
+		    	LBLogger.logError(ex.getMessage());
+		    	throw new RuntimeException(ex.getLocalizedMessage());
+		    }
+			return (TopicDTO)ModelMapperUtil.map(topicEntity, TopicDTO.class);
+	 }
 
 	
 	// =============================================================================================
@@ -585,6 +745,36 @@ public class MySQLDAO implements IMySQLDAO {
 		 return parentDTO;
 	 }
 	 
+	 
+	 private ParentDTO updateParent(ParentDTO parentDTO) {
+		 ParentEntity parentEntity = this.getParent(parentDTO.getParentID());
+		 
+		 if(parentDTO.getParentAddress() != null && !parentDTO.getParentAddress().isEmpty()) {
+			 parentEntity.setParentAddress(parentDTO.getParentAddress());
+		 }
+		 
+		 if(parentDTO.getParentEmail() != null && !parentDTO.getParentEmail().isEmpty()) {
+			 parentEntity.setParentEmail(parentDTO.getParentEmail());
+		 }
+		 
+		 if(parentDTO.getParentName() != null && !parentDTO.getParentName().isEmpty()) {
+			 parentEntity.setParentName(parentDTO.getParentName());
+		 }
+		 
+		 if(parentDTO.getParentNumber() != null && !parentDTO.getParentNumber().isEmpty()) {
+			 parentEntity.setParentNumber(parentDTO.getParentNumber());
+		 }
+		 
+		 
+		 try {
+			 session.beginTransaction();
+			 session.update(parentEntity);
+			 session.getTransaction().commit();
+		 }catch(Exception ex) {
+			 throw new RuntimeException(ex);
+		 }
+		 return (ParentDTO)ModelMapperUtil.map(parentEntity, ParentDTO.class);
+	 }
 	// =============================================================================================
 	 
 	 
@@ -658,18 +848,45 @@ public class MySQLDAO implements IMySQLDAO {
 			 throw new RuntimeException(ex);
 		 }
 		 
-		 
-	
 		 ChildResponseDTO responseObject = (ChildResponseDTO)ModelMapperUtil.map(childEntity, ChildResponseDTO.class);
-		 
 		 return responseObject;
 	 }
-	 
-	 
-	 
-	 
-	 
-	 
+     
+     
+     private ChildResponseDTO updateChild(ChildDTO childDTO){
+    	 
+    	 ChildEntity childEntity = this.getChild(childDTO.getChildId());
+    	 
+    	 if(childDTO.getChildClassCode() != null && !childDTO.getChildClassCode().isEmpty()) {
+    		 childEntity.setChildClass(this.getClassBy(childDTO.getChildClassCode()));
+    	 }
+    	 
+    	 if(childDTO.getChildName() != null && !childDTO.getChildName().isEmpty()) {
+    		 childEntity.setChildName(childDTO.getChildName());
+    	 }
+    	 
+    	 if(childDTO.getTeacherId() != null && !childDTO.getTeacherId().isEmpty()) {
+    		 childEntity.setTeacher(this.getTeacher(childDTO.getTeacherId()));
+    	 }
+    	 
+    	 if(childDTO.getChildSchool() != null && !childDTO.getChildSchool().isEmpty()) {
+    		 childEntity.setChildSchool(childDTO.getChildSchool());
+    	 }
+    	 
+    	 
+    	 try {
+			 session.beginTransaction();
+			 session.update(childEntity);
+			 session.getTransaction().commit();
+		 }catch(Exception ex) {
+			 throw new RuntimeException(ex);
+		 }
+		 
+		 ChildResponseDTO responseObject = (ChildResponseDTO)ModelMapperUtil.map(childEntity, ChildResponseDTO.class);
+		 return responseObject;
+    	 
+     }
+     
 	// =============================================================================================
 	 
 	 

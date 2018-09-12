@@ -62,4 +62,19 @@ public class ParentEntryPoint {
 				}
 		return ResponseBuilderUtil.createResponse(Status.FOUND, parentDTO);
 	}
+	
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response updateParent(ParentRequestObject requestObject) {
+		ParentDTO resultDTO = (ParentDTO)ModelMapperUtil.map(requestObject, ParentDTO.class);
+		
+		try {
+			resultDTO = (ParentDTO)this.service.updateEntity(resultDTO);
+		}catch(Exception ex) {
+			return ExceptionMapper.Response(ex);
+		}
+		return ResponseBuilderUtil.createResponse(Status.CREATED, resultDTO);
+	}
+	
 }

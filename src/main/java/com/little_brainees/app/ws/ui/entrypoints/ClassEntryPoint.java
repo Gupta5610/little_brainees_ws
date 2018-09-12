@@ -53,6 +53,25 @@ public class ClassEntryPoint {
 		return ResponseBuilderUtil.createResponse(Status.CREATED,responseObject);
 	}
 	
+    
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+	public Response updateClass(CreateClassRequest requestObject) {
+    	
+	    ClassDTO classDTO = (ClassDTO)ModelMapperUtil.map(requestObject, ClassDTO.class);
+	    ClassDTO createdDTO;
+	    try {
+	    	createdDTO =(ClassDTO)this.service.updateEntity(classDTO);
+	    }catch(Exception ex){
+	    	return ExceptionMapper.Response(ex);
+	    }
+	    
+	    CreateClassResponse responseObject = new CreateClassResponse(createdDTO.getClassCode());
+		return ResponseBuilderUtil.createResponse(Status.CREATED,responseObject);
+	}
+	
+    
 	@GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getClasses() {

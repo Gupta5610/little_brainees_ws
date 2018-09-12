@@ -3,13 +3,19 @@ package com.little_brainees.app.ws.DTO;
 import java.io.Serializable;
 import java.util.List;
 
-import javax.xml.bind.annotation.*;;
+import javax.xml.bind.annotation.*;
+
+import org.hibernate.annotations.Type;;
 
 
 
 public class TeacherDTO implements Serializable,BaseDTO{
 	
 	private static final long  serialVersionUID = 1L;
+	
+	@Type(type="yes_no")
+	Boolean isActive;
+	
 	String teacherID;
 	String teacherName;
 	String teacherAddress;
@@ -20,6 +26,27 @@ public class TeacherDTO implements Serializable,BaseDTO{
 	String teacherClass;
 	List<ChildDTO> children;
 
+	
+    /**
+	 * @return the isActive
+	 */
+	public Boolean getIsActive() {
+		return isActive;
+	}
+
+
+	/**
+	 * @param isActive the isActive to set
+	 */
+	public void setIsActive(Boolean isActive) {
+		this.isActive = isActive;
+	}
+
+
+	public TeacherDTO(){
+		
+	}
+	
 	
 	/**
 	 * @return the children
@@ -35,12 +62,6 @@ public class TeacherDTO implements Serializable,BaseDTO{
 	public void setChildren(List<ChildDTO> children) {
 		this.children = children;
 	}
-
-
-	public TeacherDTO(){
-		
-	}
-	
 	
 	public String getTeacherID() {
 		return teacherID;

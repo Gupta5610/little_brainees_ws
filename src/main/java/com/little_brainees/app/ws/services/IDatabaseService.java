@@ -17,5 +17,6 @@ public interface IDatabaseService {
 	public BaseDTO getEntity(RequestDTO requestDTO);
 	public BaseDTO createEntity(BaseDTO baseDTO);
 	public List<BaseDTO> getAllEntity(RequestDTO requestDTO);
+	public BaseDTO updateEntity(BaseDTO baseDTO);
 	
 }

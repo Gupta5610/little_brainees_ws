@@ -36,8 +36,8 @@ public class DAO implements IDAO {
 
 	@Override
 	public BaseDTO updateEntity(BaseDTO baseDTO) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		return this.mySqlDatabase.updateEntity(baseDTO);
 	}
 
 	@Override

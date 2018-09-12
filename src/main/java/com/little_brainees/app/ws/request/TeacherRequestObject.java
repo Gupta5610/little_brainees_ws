@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.*;;
 @XmlRootElement 
 public class TeacherRequestObject {
 	
+	Boolean isActive;
 	String teacherID;
 	String teacherName;
 	String teacherAddress;
@@ -20,6 +21,18 @@ public class TeacherRequestObject {
 	String teacherAdharNumber;
 	String teacherClass;
 	List<ChildRequestObject> children;
+	/**
+	 * @return the isActive
+	 */
+	public Boolean getIsActive() {
+		return isActive;
+	}
+	/**
+	 * @param isActive the isActive to set
+	 */
+	public void setIsActive(Boolean isActive) {
+		this.isActive = isActive;
+	}
 	/**
 	 * @return the children
 	 */

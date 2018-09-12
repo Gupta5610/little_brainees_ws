@@ -19,7 +19,7 @@ public class DatabaseService implements IDatabaseService {
 
     public static IDatabaseService shared = new DatabaseService();
     
-	private IMySQLDAO database = new MySQLDAO();
+	private IDAO database = new DAO();
 	
 	private DatabaseService(){
 		
@@ -44,13 +44,33 @@ public class DatabaseService implements IDatabaseService {
 	}
 	
 	
+	@Override
+	public BaseDTO updateEntity(BaseDTO baseDTO) {
+		LBLogger.logMessage("updateEntity : -","Database Service");
+		return this.updateEntityInDatabase(baseDTO);
+	}
+	
+	
+	private BaseDTO updateEntityInDatabase(BaseDTO baseDTO) {
+		
+		BaseDTO resultDTO = null;
+		try {
+			this.database.openConnection();
+			resultDTO = this.database.updateEntity(baseDTO);
+		}catch(Exception ex){
+			throw ex;
+		}finally {
+			this.database.closeConnection();
+		}
+		return resultDTO;
+	}
+	
 	private BaseDTO createEntityInDatabase(BaseDTO baseDTO) {
 		
 	    BaseDTO resultDTO = null;
 		try {
 			this.database.openConnection();
-			resultDTO = this.database.saveEntity(baseDTO);
-			LBLogger.logMessage("ResultDTO is Null : "+(resultDTO == null));
+			resultDTO = this.database.createEntity(baseDTO);
 		}catch(Exception ex){
 			if (ex instanceof RuntimeException) {
 				throw ex;

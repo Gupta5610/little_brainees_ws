@@ -16,8 +16,11 @@ public class TeacherEntity implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 5661931952223346609L;
+	
+	
 	@Id
 	String teacherID;
+	String isActive;
 	String teacherName;
 	String teacherAddress;
 	String teacherEmail;
@@ -30,7 +33,18 @@ public class TeacherEntity implements Serializable {
 	@OneToMany(mappedBy = "teacher")
 	List<ChildEntity> children;
 	
-	
+	/**
+	 * @return the isActive
+	 */
+	public Boolean getIsActive() {
+		return isActive.equals("active");
+	}
+	/**
+	 * @param isActive the isActive to set
+	 */
+	public void setIsActive(Boolean isActive) {
+		this.isActive = (isActive)? "active" :"inactive";
+	}
 	/**
 	 * @return the children
 	 */

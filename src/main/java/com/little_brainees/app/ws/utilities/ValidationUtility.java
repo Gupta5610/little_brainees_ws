@@ -43,7 +43,7 @@ public final class ValidationUtility {
 				teacherDTO.getTeacherEmail() == null || teacherDTO.getTeacherEmail().isEmpty() ||
 				teacherDTO.getTeacherID() == null || teacherDTO.getTeacherClass().isEmpty() ||
 				teacherDTO.getTeacherName() == null || teacherDTO.getTeacherName().isEmpty() ||
-				teacherDTO.getTeacherPhoneNumber() == null || teacherDTO.getTeacherPhoneNumber().isEmpty() ) {
+				teacherDTO.getTeacherPhoneNumber() == null || teacherDTO.getTeacherPhoneNumber().isEmpty()) {
 			throw missingRequiredFieldException;
 		}
 	}

@@ -36,7 +36,9 @@ public class TeacherEntryPoint {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
    public Response createTeacher(TeacherRequestObject requestObject) {
+		requestObject.setIsActive(false);
 		TeacherDTO teacherDTO = (new ObjectMapper()).convertValue(requestObject, TeacherDTO.class);
+		
 		TeacherDTO createdDTO ;
 		try {
 			  createdDTO = (TeacherDTO)this.teacherService.createEntity(teacherDTO);
@@ -64,8 +66,16 @@ public class TeacherEntryPoint {
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public void updateTeacher() {
-	  
+    public Response updateTeacher(TeacherRequestObject requestObject) {
+    	TeacherDTO teacherDTO = (new ObjectMapper()).convertValue(requestObject, TeacherDTO.class);
+		TeacherDTO createdDTO ;
+		try {
+			  createdDTO = (TeacherDTO)this.teacherService.updateEntity(teacherDTO);
+		}catch(Exception ex) {
+			return ExceptionMapper.Response(ex);
+		}
+			
+	    return ResponseBuilderUtil.createResponse(Status.CREATED, createdDTO);
    }
    
 }

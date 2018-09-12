@@ -6,6 +6,7 @@ package com.little_brainees.app.ws.ui.entrypoints;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -48,6 +49,23 @@ public class ChildEntryPoint {
 		
 		return ResponseBuilderUtil.createResponse(Status.CREATED, responseObject);
 	}
+	
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public Response updateChild(ChildRequestObject requestObject) {
+		System.out.println("updade post");
+		ChildDTO childDTO = (ChildDTO)ModelMapperUtil.map(requestObject, ChildDTO.class);
+		ChildResponseDTO responseObject = null;
+		try {
+			responseObject = (ChildResponseDTO)this.service.updateEntity(childDTO);
+		}catch(Exception ex) {
+			return ExceptionMapper.Response(ex);
+		}
+		
+		return ResponseBuilderUtil.createResponse(Status.CREATED, responseObject);
+	}
+	
 	
 	@Path("/{childId}")
 	@GET
